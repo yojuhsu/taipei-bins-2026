@@ -57,7 +57,7 @@ footer{padding:6px 16px;border-top:1px solid var(--rule);color:var(--mute);font-
 <header>
   <h1>2026 debug松：找回消失的垃圾桶</h1>
   <p class="claim">官方題目背景：行人專用垃圾桶從約 3,000 組降到約 800 組，今年從 1,682 組撤到 806 組。這頁先回答一個小問題：公車站牌 100 公尺內有沒有垃圾桶。</p>
-<div class="opener"><p><b>題目在問什麼</b>：行人專用垃圾桶從約 3,000 組減到約 800 組，題目要的是用 IoT 感測器把桶放回最需要的地方。</p><p><b>我們認為重點是什麼</b>：桶是市府撤的，不是壞了沒補；環保局長說是經里長要求或里長同意後撤的，沒有逐桶的紀錄可以查，只能當說法。衝突集中在捷運站、公車站、公園這幾類地方，而「撤了之後路面變髒了嗎、家戶垃圾少了嗎」兩邊都沒有數字。感測器要最佳化的「滿不滿」根本沒有資料。</p><p><b>解方的方向</b>：先把數字收齊再談放桶，桶上貼 QR 讓路人回報、陳情與開單加地點、固定幾十個點定期拍。這一頁先量出一件事：每個公車站牌 50 到 200 公尺內，有沒有公共垃圾桶或超商。</p></div>
+__OFFICIAL__<div class="opener"><p><b>我們認為重點是什麼</b>：桶是市府撤的，不是壞了沒補；環保局長說是經里長要求或里長同意後撤的，沒有逐桶的紀錄可以查，只能當說法。衝突集中在捷運站、公車站、公園這幾類地方，而「撤了之後路面變髒了嗎、家戶垃圾少了嗎」兩邊都沒有數字。感測器要最佳化的「滿不滿」根本沒有資料。</p><p><b>解方的方向</b>：先把數字收齊再談放桶，桶上貼 QR 讓路人回報、陳情與開單加地點、固定幾十個點定期拍。這一頁先量出一件事：每個公車站牌 50 到 200 公尺內，有沒有公共垃圾桶或超商。</p></div>
 </header>
 <div class="kpis" id="kpis"></div>
 <main>
@@ -190,5 +190,6 @@ map.fitBounds(D.nodes.map(p=>[p.lat,p.lon]),{padding:[10,10]});
 </html>
 """
 html = html.replace("__DATA__", json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/"))
+html = html.replace("__OFFICIAL__", __import__("official_q").block_html("#2") + '<style>.official{border-left:4px solid #1f1a17;background:#fff;padding:10px 18px;margin:12px 0 0}.official p{margin:6px 0}.official .qt{font-weight:700;font-size:18px}.official .lbls span{display:inline-block;margin-left:8px;padding:0 8px;border:1px solid #d9d2c8;border-radius:999px;font-size:13px;font-weight:400;color:#6b625c}</style>')  # 題目怎麼說一字不改（Erica 2026-10-21 07:0x）
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(html)
 print("wrote", os.path.join(OUT, "index.html"), len(html))
