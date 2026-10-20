@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """把 data.json 內嵌進單檔網頁 _草稿/作品_垃圾桶/index.html。Leaflet 走 cdnjs，底圖走 OSM tile。"""
 import json, os
-OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-data = json.load(open(os.path.join(OUT, "data", "data.json"), encoding="utf-8"))
+OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "_草稿", "作品_垃圾桶")
+data = json.load(open(os.path.join(OUT, "data.json"), encoding="utf-8"))
 S = data["summary"]
 def pct(a, b): return f"{a / b * 100:.0f}%"
 kpi = {r: dict(none=S[f"stop_{r}"]["none"], cvs=S[f"stop_{r}"]["cvs"], pub=S[f"stop_{r}"]["pub"], n=S[f"stop_{r}"]["n"],
@@ -57,7 +57,7 @@ footer{padding:6px 16px;border-top:1px solid var(--rule);color:var(--mute);font-
 <header>
   <h1>2026 debug松：找回消失的垃圾桶</h1>
   <p class="claim">官方題目背景：行人專用垃圾桶從約 3,000 組降到約 800 組，今年從 1,682 組撤到 806 組。這頁先回答一個小問題：公車站牌 100 公尺內有沒有垃圾桶。</p>
-<div class="opener"><p><b>題目在問什麼</b>：行人專用垃圾桶從約 3,000 組減到約 800 組，題目要的是用 IoT 感測器把桶放回最需要的地方。</p><p><b>我們認為重點是什麼</b>：桶是市府依里長申請撤的，不是壞了沒補；衝突集中在捷運站、公車站、公園這幾類地方，而「撤了之後路面變髒了嗎、家戶垃圾少了嗎」兩邊都沒有數字。感測器要最佳化的「滿不滿」根本沒有資料。</p><p><b>解方的方向</b>：先把數字收齊再談放桶，桶上貼 QR 讓路人回報、陳情與開單加地點、固定幾十個點定期拍。這一頁先量出一件事：每個公車站牌 50 到 200 公尺內，有沒有公共垃圾桶或超商。</p></div>
+<div class="opener"><p><b>題目在問什麼</b>：行人專用垃圾桶從約 3,000 組減到約 800 組，題目要的是用 IoT 感測器把桶放回最需要的地方。</p><p><b>我們認為重點是什麼</b>：桶是市府撤的，不是壞了沒補；環保局長說是經里長要求或里長同意後撤的，沒有逐桶的紀錄可以查，只能當說法。衝突集中在捷運站、公車站、公園這幾類地方，而「撤了之後路面變髒了嗎、家戶垃圾少了嗎」兩邊都沒有數字。感測器要最佳化的「滿不滿」根本沒有資料。</p><p><b>解方的方向</b>：先把數字收齊再談放桶，桶上貼 QR 讓路人回報、陳情與開單加地點、固定幾十個點定期拍。這一頁先量出一件事：每個公車站牌 50 到 200 公尺內，有沒有公共垃圾桶或超商。</p></div>
 </header>
 <div class="kpis" id="kpis"></div>
 <main>
