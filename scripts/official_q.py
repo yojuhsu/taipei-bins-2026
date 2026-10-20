@@ -36,7 +36,7 @@ def get(n):
 def block_html(n, cls="official"):
     """題目怎麼說的 HTML：標題、標籤、原文、沈伯洋說（有的話），全部原文。"""
     q = get(n); E = html.escape
-    s = f'<div class="{cls}"><p><b>題目怎麼說</b>（官方活動頁原文，{FETCHED} 抓取，一字不改）</p>'
+    s = f'<div class="{cls}"><p><b>題目怎麼說</b></p>'  # Erica 2026-10-21 07:32 手改線上頁：標籤只留四個字，括號拿掉
     s += f'<p class="qt">{E(q["num"])} {E(q["title"])}<span class="lbls">{"".join(f"<span>{E(l)}</span>" for l in q["labels"])}</span></p>'
     s += f'<p>{E(q["desc"])}</p>'
     if q["shen"]:
