@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""點層資料（需要原始檔，見 README「重跑」）：每個公車站牌與捷運站，最近的公共桶（681 點表）、景點表桶（130 點，N 處）、超商（OSM 四大）距離。
+"""題 2 作品的點層資料（第二版，站牌改用 2026 年公運處站位檔）：每個公車站牌與捷運站，最近的公共桶（681 點表）、景點表桶（130 點，N 處）、超商（OSM 四大）距離。
 輸出 _草稿/作品_垃圾桶/data.json（給網頁內嵌）與 points_summary.json。距離用北緯 25.05 度平面近似，公尺。"""
 import csv, io, json, math, os, re, sys, struct, zipfile, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -35,22 +35,15 @@ mrt = []
 for s in json.load(open(os.path.join(DATA, "q2", "tdx_trtc_stations.json"), encoding="utf-8")):
     if s.get("LocationCity") != "臺北市": continue
     mrt.append(dict(lon=s["StationPosition"]["PositionLon"], lat=s["StationPosition"]["PositionLat"], name=s["StationName"]["Zh_tw"], town=s.get("LocationTown")))
-z = zipfile.ZipFile(os.path.join(DATA, "busstop_shp.raw"))
-shp = z.read([n for n in z.namelist() if n.lower().endswith(".shp")][0]); dbf = z.read([n for n in z.namelist() if n.lower().endswith(".dbf")][0])
-N = struct.unpack("<I", dbf[4:8])[0]; hl, rl = struct.unpack("<HH", dbf[8:12]); fl = []; i = 32
-while dbf[i] != 0x0D: fl.append((dbf[i:i + 11].split(b"\0")[0].decode("latin1"), dbf[i + 16])); i += 32
-names = []
-for k in range(N):
-    rec = dbf[hl + k * rl: hl + (k + 1) * rl]; off = 1; v = {}
-    for nm, ln in fl: v[nm] = rec[off:off + ln].decode("utf-8", "ignore").replace("\ufffd", "").strip(); off += ln   # 來源檔把站名切在 22 位元組，尾端留了 U+FFFD
-    names.append(v)
-stops = []; pos = 100; idx = 0
-while pos < len(shp):
-    clen = struct.unpack(">i", shp[pos + 4:pos + 8])[0] * 2; body = shp[pos + 8:pos + 8 + clen]; pos += 8 + clen
-    if struct.unpack("<i", body[:4])[0] == 1:
-        x, y = struct.unpack("<2d", body[4:20]); v = names[idx] if idx < len(names) else {}
-        stops.append(dict(lon=x, lat=y, name=v.get("BSM_CHINES", ""), id=v.get("BSM_BUSSTO", "")))
-    idx += 1
+# 站牌（實體站位）：公運處 blob GetStopLocation，2026-10-20 21:43 抓（題 5 串），複製到 q2/；2020 年 SHP 版留在 _舊版 對照
+import gzip
+_J = json.loads(gzip.open(os.path.join(DATA, "q2", "GetStopLocation_20261020.gz"), "rb").read().decode("utf-8-sig", errors="replace"))
+_recs = _J["BusInfo"] if isinstance(_J, dict) else _J
+stops = []
+for _r in _recs:
+    try: _lon, _lat = float(_r["lon"]), float(_r["lat"])
+    except Exception: continue
+    stops.append(dict(lon=_lon, lat=_lat, name=(_r.get("name") or "").replace("\ufffd", ""), id=str(_r.get("nid") or _r.get("id") or "")))
 # --- 最近距離（格網索引）---
 def grid(pts, cell=0.003):
     g = collections.defaultdict(list)
@@ -90,7 +83,7 @@ for p in nodes:
 summary["stop_100_by_district"] = {d: dict(c) for d, c in by_dist.items()}
 json.dump(dict(nodes=nodes, bins=bins, spots=spots, cvs=cvs, mrt=mrt, summary=summary,
                meta=dict(bins_src="data.taipei 行人專用清潔箱 點位表 681（2026-09-30 更新）", spots_src="同資料集 景點商圈周邊 130 點（2026-08-18 更新，備註 N 處）",
-                         stops_src="data.taipei 公車站牌位置圖 SHP 3,407（2020 到 2021 年）", mrt_src="TDX 捷運車站 87（臺北市）", cvs_src="OpenStreetMap 四大超商 1,566（ODbL，覆蓋約六成）",
+                         stops_src="公運處 blob 站位檔 GetStopLocation（2026-10-20），臺北市里界內 3,460；2020 年 SHP 3,407 的對照見 README", mrt_src="TDX 捷運車站 87（臺北市）", cvs_src="OpenStreetMap 四大超商 1,566（ODbL，覆蓋約六成）",
                          li_src="內政部國土測繪中心 村里界 115/08", built="2026-10-20")),
           open(os.path.join(OUT, "data.json"), "w", encoding="utf-8"), ensure_ascii=False)
 json.dump(summary, open(os.path.join(OUT, "points_summary.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)

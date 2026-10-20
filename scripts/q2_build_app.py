@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""把 data/data.json 內嵌進單檔網頁 index.html。Leaflet 走 cdnjs，底圖走 OpenStreetMap。
-用法：python3 scripts/q2_build_app.py"""
+"""把 data.json 內嵌進單檔網頁 _草稿/作品_垃圾桶/index.html。Leaflet 走 cdnjs，底圖走 OSM tile。"""
 import json, os
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = ROOT
-data = json.load(open(os.path.join(ROOT, "data", "data.json"), encoding="utf-8"))
+OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+data = json.load(open(os.path.join(OUT, "data", "data.json"), encoding="utf-8"))
 S = data["summary"]
 def pct(a, b): return f"{a / b * 100:.0f}%"
 kpi = {r: dict(none=S[f"stop_{r}"]["none"], cvs=S[f"stop_{r}"]["cvs"], pub=S[f"stop_{r}"]["pub"], n=S[f"stop_{r}"]["n"],
@@ -23,7 +21,7 @@ html = r"""<!doctype html>
 body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font:15px/1.6 "PingFang TC","Noto Sans TC",system-ui,sans-serif;display:flex;flex-direction:column}
 header{padding:12px 16px 8px;border-bottom:2px solid var(--ink);display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline}
 header h1{font-size:1.25rem;margin:0;letter-spacing:.01em}
-header .claim{color:var(--mute);font-size:.92rem;margin:0}
+header .claim{color:var(--mute);font-size:.92rem;margin:0}.opener{border:1px solid var(--line);background:#fff;padding:8px 14px;margin:10px 0 6px;font-size:.95rem}.opener p{margin:5px 0}
 .kpis{display:flex;gap:18px;flex-wrap:wrap;padding:8px 16px;border-bottom:1px solid var(--rule);font-size:.9rem}
 .kpi b{font-size:1.35rem;font-variant-numeric:tabular-nums;margin-right:4px}
 .kpi.none b{color:var(--none)}.kpi.cvs b{color:var(--cvs)}.kpi.pub b{color:var(--pub)}
@@ -59,6 +57,7 @@ footer{padding:6px 16px;border-top:1px solid var(--rule);color:var(--mute);font-
 <header>
   <h1>2026 debug松：找回消失的垃圾桶</h1>
   <p class="claim">官方題目背景：行人專用垃圾桶從約 3,000 組降到約 800 組，今年從 1,682 組撤到 806 組。這頁先回答一個小問題：公車站牌 100 公尺內有沒有垃圾桶。</p>
+<div class="opener"><p><b>題目在問什麼</b>：行人專用垃圾桶從約 3,000 組減到約 800 組，題目要的是用 IoT 感測器把桶放回最需要的地方。</p><p><b>我們認為重點是什麼</b>：桶是市府依里長申請撤的，不是壞了沒補；衝突集中在捷運站、公車站、公園這幾類地方，而「撤了之後路面變髒了嗎、家戶垃圾少了嗎」兩邊都沒有數字。感測器要最佳化的「滿不滿」根本沒有資料。</p><p><b>解方的方向</b>：先把數字收齊再談放桶，桶上貼 QR 讓路人回報、陳情與開單加地點、固定幾十個點定期拍。這一頁先量出一件事：每個公車站牌 50 到 200 公尺內，有沒有公共垃圾桶或超商。</p></div>
 </header>
 <div class="kpis" id="kpis"></div>
 <main>
@@ -73,7 +72,7 @@ footer{padding:6px 16px;border-top:1px solid var(--rule);color:var(--mute);font-
     </div>
     <div class="tabs"><button class="on" data-t="read">怎麼讀</button><button data-t="plan">100 天怎麼做</button><button data-t="src">資料與限制</button></div>
     <div class="pane on" id="p-read">
-      <div class="lg"><span><i class="sw" style="background:var(--none)"></i>半徑內沒有公共桶也沒有超商</span><span><i class="sw" style="background:var(--cvs)"></i>只有超商</span><span><i class="sw" style="background:var(--pub)"></i>有公共桶</span><span><i class="sw" style="background:var(--bin)"></i>公共桶（點位表 681）</span><span><i class="sw" style="background:var(--spot);border:2px solid var(--bin)"></i>景點商圈桶（130 點，圈越大處數越多）</span><span><i class="sw" style="background:var(--mrt);border-radius:2px"></i>捷運站</span></div>
+      <div class="lg"><span><i class="sw" style="background:var(--none)"></i>半徑內沒有公共桶也沒有超商</span><span><i class="sw" style="background:var(--cvs)"></i>只有超商（收不收路人垃圾未驗）</span><span><i class="sw" style="background:var(--pub)"></i>有公共桶</span><span><i class="sw" style="background:var(--bin)"></i>公共桶（點位表 681）</span><span><i class="sw" style="background:var(--spot);border:2px solid var(--bin)"></i>景點商圈桶（130 點，圈越大處數越多）</span><span><i class="sw" style="background:var(--mrt);border-radius:2px"></i>捷運站</span></div>
       <p>點任何一個站牌，看它最近的公共桶、景點桶、超商各在幾公尺外。底圖是臺北市 456 個里的界線，沒有街道，因為這個頁面不能載入外部地圖磁磚。</p>
       <h3>這頁回答的問題</h3>
       <p>「找回消失的垃圾桶」這個題目，先要知道消失在哪裡。里層的統計會被面積與戶籍人口帶著走，所以這頁直接看<b>人經過的點</b>：3,407 個公車站牌與 87 個捷運站。</p>
@@ -99,7 +98,7 @@ footer{padding:6px 16px;border-top:1px solid var(--rule);color:var(--mute);font-
       <h3>第四件事：清潔隊的人力對得上桶嗎</h3>
       <p>清潔隊按區編制。各區的人數、清運路線、班次都沒有開放，只有全市約 6,000 人（SEGIS，112 年）。紅燈最多的北投、南港、文山，意思是站牌 100 公尺內沒有公共桶，不代表沒人掃街；但要在那裡放桶，先要知道該區清潔隊一天能多跑幾趟。所需資料：各區清潔隊人數、清運路線與班次。</p>
       <h3>放回去的規則（有了數字之後）</h3>
-      <p>比照上海 2023 年導則：公車站原則每站一處、捷運出入口 50 公尺內一處。用這頁的「什麼都沒有」名單當候選，不用里。每多放一座，成本不是鐵箱（2015、2016 年決標每組 10,800 到 11,340 元），是每天 4 到 10 次清運。</p>
+      <p>比照上海 2023 年導則：公車站原則每站一處、捷運出入口 50 公尺內一處。用這頁的「什麼都沒有」清單當起點；這是量測，不是該放桶的結論，上海導則是可以借的規則，不是依據。每多放一座，成本不是鐵箱（2015、2016 年決標每組 10,800 到 11,340 元），是每天 4 到 10 次清運。</p>
       <h3>所需資料（向市府要的）</h3>
       <ul><li>撤桶紀錄：日期、地點、原因、申請人（里長或評估）</li><li>每個桶的清運排程；滿度由 QR 通報與第二階段感測器補</li><li>陳情與丟包開單的座標</li><li>各區清潔隊人數、清運路線與班次</li><li>捷運站、公園、市場、夜市各機關自設桶的位置（現在沒有開放）</li></ul>
       <h3>成本三列</h3>
@@ -113,7 +112,7 @@ footer{padding:6px 16px;border-top:1px solid var(--rule);color:var(--mute);font-
       <h3>資料（全部真實，沒有模擬）</h3>
       <ul>
       <li>公共桶：data.taipei「臺北市行人專用清潔箱」兩個檔，點位表 681 點（2026-09-30）、景點商圈周邊 130 點含處數（2026-08-18）。環保局。</li>
-      <li>公車站牌：data.taipei「臺北市公車站牌位置圖」SHP 3,407 筆。<b>資料是 2020 到 2021 年的</b>，metadata 寫 28,153 筆對不上，座標是經緯度不是 metadata 說的 TWD97。交通局。</li>
+      <li>公車站牌（實體站位，一個地點一個，不分路線）：公運處開放資料容器的站位檔 GetStopLocation，2026-10-20 抓，臺北市里界內 3,460 個。跟 data.taipei 2020 年的站牌 SHP（3,407）比，50 公尺內互相對得到 93%；用 2020 版算，100 公尺內什麼都沒有的是 50%，用 2026 版是 53%。</li>
       <li>捷運站：TDX 捷運車站 API，臺北市 87 站。交通部。</li>
       <li>超商：OpenStreetMap 的 7-Eleven、全家、萊爾富、OK，臺北市 1,566 點。<b>只畫到稅籍登記 2,663 家的約六成</b>，所以「只有超商」偏少、「什麼都沒有」偏多，是上限。© OpenStreetMap contributors，ODbL。</li>
       <li>里界：內政部國土測繪中心村里界 115/08，這頁用簡化版畫底圖。</li>
@@ -123,15 +122,14 @@ footer{padding:6px 16px;border-top:1px solid var(--rule);color:var(--mute);font-
       <li>距離是直線，不是步行路徑；公園、市場、捷運站內各機關自設的桶不在資料裡。</li>
       <li>景點商圈表只有地點中心座標，一處可能涵蓋好幾個桶。</li>
       <li>超商門口有沒有桶、收不收路人垃圾，沒有資料集，這頁不假設它收。</li>
-      <li>站牌是 2020 年的檔，新設與廢站沒有反映。</li>
+      <li>站牌是 2026 年 10 月的站位檔；公運處另有「路線站牌」28,826 筆（同一根桿子每條路線算一筆），這頁不用那一層。</li>
       <li>沒有用 YouBike 與任何個資。</li></ul>
       <h3>使用注意</h3>
       <ul>
       <li>結論隨半徑變：50 公尺內什麼都沒有的站牌 73%，100 公尺 50%，200 公尺 29%。引用時一定要寫半徑。</li>
-      <li>「什麼都沒有」是上限：直線距離、超商只抓到六成、公園與捷運站內的桶不在資料裡。拿去要求某個站牌放桶之前，先去現場看。</li>
+      <li>「什麼都沒有」偏多：直線距離、超商只抓到六成、公園與捷運站內的桶不在資料裡，這三個都讓紅點變多；景點表一個座標代表好幾處，會讓少數站牌被標成有桶，方向相反，影響一兩個百分點。拿去要求某個站牌放桶之前，先去現場看。</li>
       <li>點位表的「點」和景點表的「處」不能相加成桶數，這頁只算距離。</li>
-      <li>站牌是 2020 年版，用在 2026 年的決策前先對最新的站牌資料。</li>
-      <li>超商層來自 OpenStreetMap（ODbL）：再發布含超商層的衍生資料要標 © OpenStreetMap contributors 並沿用 ODbL。政府資料依政府資料開放授權條款第 1 版，要標來源。</li>
+            <li>超商層來自 OpenStreetMap（ODbL）：再發布含超商層的衍生資料要標 © OpenStreetMap contributors 並沿用 ODbL。政府資料依政府資料開放授權條款第 1 版，要標來源。</li>
       <li>這頁只告訴你哪裡沒有桶，不是撤桶對不對的證據。</li>
       <li>沒有個資。不要把這頁的點跟任何含個人資料的檔案合併。</li></ul>
       <h3>怎麼做的</h3>
@@ -140,7 +138,7 @@ footer{padding:6px 16px;border-top:1px solid var(--rule);color:var(--mute);font-
     </div>
   </aside>
 </main>
-<footer>資料截至 2026-10-20。這是研究示意，不是市府的決策。超商資料 © OpenStreetMap contributors。程式與資料：<a href="https://github.com/yojuhsu/taipei-bins-2026" target="_blank" rel="noopener">GitHub</a>。</footer>
+<footer>資料截至 2026-10-20。這是研究示意，不是市府的決策。超商資料 © OpenStreetMap contributors。本作品使用臺北市政府環境保護局、交通局、公共運輸處與內政部國土測繪中心提供之開放資料，依「政府資料開放授權條款－第 1 版」利用；衍生之資料表與程式以 CC BY 4.0 與 MIT 授權釋出。程式與資料：<a href="https://github.com/yojuhsu/taipei-bins-2026" target="_blank" rel="noopener">GitHub</a>。</footer>
 <script id="data" type="application/json">__DATA__</script>
 <script>
 const D=JSON.parse(document.getElementById('data').textContent);
